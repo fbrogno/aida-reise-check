@@ -1,9 +1,9 @@
-name: AIDA täglicher Abruf
+name: AIDA Abruf
 on:
-  schedule:
-    # GitHub rechnet in UTC: 04:00 UTC = 06:00 Sommerzeit, 05:00 UTC = 06:00 Winterzeit
-    - cron: "0 4 * * *"
-    - cron: "0 5 * * *"
+  # Täglicher Abruf ist abgeschaltet. Zum Einschalten (06:00 deutscher Zeit):
+  # schedule:
+  #   - cron: "0 4 * * *"   # 04:00 UTC = 06:00 Sommerzeit
+  #   - cron: "0 5 * * *"   # 05:00 UTC = 06:00 Winterzeit
   workflow_dispatch:
     inputs:
       limit:
