@@ -12,4 +12,4 @@ jobs:
       - name: Ohne Browser (curl)
         run: curl -s -o /dev/null -w "%{http_code}\n" https://aida.de/ || true
       - name: Mit Browser (Playwright)
-        run: python test.py
+        run: xvfb-run -a python test.py
