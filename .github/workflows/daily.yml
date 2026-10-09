@@ -10,6 +10,14 @@ on:
         description: "Nur N Reisen (Test, leer = alle)"
         required: false
         default: ""
+      nur_kabinen:
+        description: "Nur freie Kabinen zählen (Details nicht erneuern)"
+        type: boolean
+        default: false
+      minuten:
+        description: "Zeitbudget in Minuten"
+        required: false
+        default: "60"
 
 concurrency:
   group: aida-abruf
@@ -21,7 +29,7 @@ permissions:
 jobs:
   abruf:
     runs-on: ubuntu-latest
-    timeout-minutes: 85
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
 
@@ -50,7 +58,8 @@ jobs:
         run: |
           args=""
           if [ -n "${{ github.event.inputs.limit }}" ]; then args="--limit ${{ github.event.inputs.limit }}"; fi
-          xvfb-run -a python crawler/crawl.py --minutes 60 $args
+          if [ "${{ github.event.inputs.nur_kabinen }}" = "true" ]; then args="$args --only-cabins"; fi
+          xvfb-run -a python crawler/crawl.py --minutes "${{ github.event.inputs.minuten || '60' }}" $args
 
       - name: Hafen-Koordinaten ergänzen
         if: steps.gate.outputs.run == 'true'

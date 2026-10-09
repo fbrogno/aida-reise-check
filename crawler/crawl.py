@@ -76,6 +76,44 @@ class Aida:
         log(f"  FEHLER {status} {url[:120]}")
         return None
 
+    def parallel(self, reqs, conc=3):
+        """Mehrere Anfragen, höchstens `conc` gleichzeitig, je Strang mit Pause.
+        reqs: [(method, url, body)] -> [json|None] in gleicher Reihenfolge."""
+        if not reqs:
+            return []
+        res = self.page.evaluate(
+            """async ([reqs, conc, pause]) => {
+                const out = new Array(reqs.length); let next = 0;
+                const sleep = ms => new Promise(r => setTimeout(r, ms));
+                async function worker() {
+                    while (next < reqs.length) {
+                        const i = next++; const [m, u, b] = reqs[i];
+                        const o = {method:m, headers:{'Accept':'application/json'}};
+                        if (b) { o.body = b; o.headers['Content-Type'] = 'application/json'; }
+                        try { const r = await fetch(u, o); out[i] = [r.status, await r.text()]; }
+                        catch (e) { out[i] = [0, String(e)]; }
+                        await sleep(pause * (1 + Math.random() / 2));
+                    }
+                }
+                await Promise.all(Array.from({length: Math.min(conc, reqs.length)}, worker));
+                return out;
+            }""",
+            [[[m, u, json.dumps(b) if b else None] for m, u, b in reqs], conc, int(self.delay * 1000)],
+        )
+        self.calls += len(reqs)
+        out = []
+        for (m, u, b), (status, text) in zip(reqs, res):
+            if status == 403:
+                raise RuntimeError("403 von aida.de – Abruf gesperrt, Lauf wird beendet")
+            data = None
+            if status == 200:
+                try:
+                    data = json.loads(text)
+                except json.JSONDecodeError:
+                    pass
+            out.append(data if data is not None else self._call(m, u, b))  # Fehler einzeln nachholen
+        return out
+
     def get(self, path):
         return self._call("GET", API + path)
 
@@ -89,16 +127,16 @@ class Aida:
         return self.get(f"search.singleCruise.json/size={size}/sortCriteria=Price/sortDirection=Asc/"
                         f"pax[adults]={ADULTS}/pax[juveniles]=0/pax[children]=0/pax[babies]=0.json")
 
-    def detail(self, jid):
-        return self.get(f"detail.cruise.json/adults={ADULTS}/juveniles=0/children=0/babies=0/"
-                        f"JourneyIdentifier={jid}.json")
+    def req_detail(self, jid):
+        return ("GET", API + f"detail.cruise.json/adults={ADULTS}/juveniles=0/children=0/babies=0/"
+                f"JourneyIdentifier={jid}.json", None)
 
     def ship_plan(self, ship, variation):
         return self.get(f"detail.cabins.json/shipName={ship}/variation={variation}.json")
 
-    def subcategories(self, jid, tariff="IND"):
+    def req_subcategories(self, jid, tariff="IND"):
         today = dt.date.today().isoformat()
-        return self.post("player.proxy.json?subCategoryCall", {
+        return ("POST", API + "player.proxy.json?subCategoryCall", {
             "cruise": {"journeyIdentifier": [jid], "tariffTypes": [tariff]},
             "paging": {"entity": "Route", "resultsFrom": 1, "resultsTotal": 20},
             "detailLevel": ["PriceDetails"], "productTypes": ["Cruise", "CruisePackage"],
@@ -108,7 +146,7 @@ class Aida:
             "passengers": [{"id": i + 1, "age": a} for i, a in enumerate(PAX_AGES)],
         })
 
-    def cabin_list(self, jid, start, end, subcat, tariff="IND"):
+    def req_cabin_list(self, jid, start, end, subcat, tariff="IND"):
         # Gleicher Aufbau wie die Anfrage der AIDA-Buchungsseite selbst
         today = dt.date.today().isoformat()
         ctx = {"requestor": {"agency": {"agencyID": "30449"}, "agent": {"id": "GOOFY", "name": ""}},
@@ -133,7 +171,7 @@ class Aida:
         body = {"routingHeader": {"routingHeader": {"operatorSystemRouting": "", "gdsAgency": "30449"},
                                   "payload": wrap(ctx), "operatorSystemCode": "AIDA"},
                 "payload": wrap({**ctx, "requestedAction": action})}
-        return self.post(f"booking.proxy.json?cabinListCall={subcat}", body)
+        return ("POST", API + f"booking.proxy.json?cabinListCall={subcat}", body)
 
 
 # --- Aufbereitung -----------------------------------------------------------
@@ -306,8 +344,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0, help="nur N Reisen (Test)")
     ap.add_argument("--minutes", type=float, default=60, help="Zeitbudget gesamt")
-    ap.add_argument("--delay", type=float, default=0.8, help="Pause zwischen Anfragen (s)")
-    ap.add_argument("--detail-delay", type=float, default=0.4, help="Pause zwischen Detailabrufen (s)")
+    ap.add_argument("--delay", type=float, default=0.3, help="Pause zwischen Anfragen je Strang (s)")
+    ap.add_argument("--detail-delay", type=float, default=0.3, help="Pause zwischen Detailabrufen (s)")
+    ap.add_argument("--conc", type=int, default=3, help="gleichzeitige Anfragen (maßvoll halten)")
+    ap.add_argument("--only-cabins", action="store_true", help="Details nicht erneuern, nur Kabinen zählen")
     args = ap.parse_args()
 
     t0 = time.time()
@@ -345,21 +385,25 @@ def main():
 
         # 2) Details + Preise je Abfahrt: fehlende und älteste zuerst, bis 75 % des Zeitbudgets.
         #    Nicht erneuerte Reisen behalten den letzten Stand (stale) und kommen morgen zuerst.
-        detail_deadline = t0 + args.minutes * 60 * 0.75
+        detail_deadline = t0 if args.only_cabins else t0 + args.minutes * 60 * 0.75
         order = sorted(ids, key=lambda k: (prev.get(k, {}).get("detailAt", ""), journeys[k]["start"]))
         done = 0
         aida.delay = args.detail_delay
-        for jid in order:
-            d = aida.detail(jid) if time.time() < detail_deadline else None
-            if d:
-                journeys[jid].update(parse_detail(d), detailAt=now.isoformat(timespec="minutes"))
-                done += 1
-            elif jid in prev:
-                for k in ("region", "itinerary", "categories", "mapImage", "detailAt"):
-                    if k in prev[jid]:
-                        journeys[jid][k] = prev[jid][k]
-                journeys[jid]["stale"] = True
-            if done and done % 100 == 0 and d:
+        for k in range(0, len(order), 12):
+            chunk = order[k:k + 12]
+            fetched = (aida.parallel([aida.req_detail(j) for j in chunk], args.conc)
+                       if time.time() < detail_deadline else [None] * len(chunk))
+            for jid, d in zip(chunk, fetched):
+                if d:
+                    journeys[jid].update(parse_detail(d), detailAt=now.isoformat(timespec="minutes"))
+                    done += 1
+                elif jid in prev:  # nicht erneuert -> letzten Stand behalten
+                    for key in ("region", "itinerary", "categories", "mapImage", "detailAt"):
+                        if key in prev[jid]:
+                            journeys[jid][key] = prev[jid][key]
+                    if not args.only_cabins:
+                        journeys[jid]["stale"] = True
+            if fetched[0] is not None and (k // 12) % 10 == 9:
                 log(f"Details {done}/{len(ids)} – {aida.calls} Anfragen, {(time.time()-t0)/60:.0f} min")
         aida.delay = args.delay
         log(f"Details erneuert: {done}/{len(ids)} Abfahrten, {(time.time()-t0)/60:.0f} min")
@@ -379,21 +423,32 @@ def main():
             return load(DATA / "cabins" / f"{jid}.json", {}).get("fetched", "")
         order = sorted(ids, key=lambda j: (j not in watch, last_counted(j), journeys[j]["start"]))
         counted = 0
-        for jid in order:
-            if jid not in watch and time.time() > deadline - 120:
+        for k in range(0, len(order), 3):
+            chunk = [jid for jid in order[k:k + 3] if jid in watch or time.time() < deadline - 120]
+            if not chunk:
                 break
-            j = journeys[jid]
-            subs = parse_subcategories(aida.subcategories(jid))
-            if subs is None:
-                continue
-            for code, s in subs.items():
-                cabins, states = parse_cabin_list(aida.cabin_list(jid, j["start"], j["end"], code)) or (None, None)
-                s["free"] = len(cabins) if cabins is not None else None
-                s["cabins"] = cabins
-                s["states"] = states
-            save(DATA / "cabins" / f"{jid}.json", {"id": jid, "fetched": now.isoformat(timespec="minutes"),
-                                                  "tariff": "PREMIUM", "subcategories": subs})
-            counted += 1
+            subs_list = [parse_subcategories(r) for r in
+                         aida.parallel([aida.req_subcategories(jid) for jid in chunk], args.conc)]
+            reqs, keys = [], []
+            for jid, subs in zip(chunk, subs_list):
+                for code in subs or {}:
+                    j = journeys[jid]
+                    reqs.append(aida.req_cabin_list(jid, j["start"], j["end"], code))
+                    keys.append((jid, code))
+            lists = dict(zip(keys, aida.parallel(reqs, args.conc)))
+            for jid, subs in zip(chunk, subs_list):
+                if subs is None:
+                    continue
+                for code, s in subs.items():
+                    cabins, states = parse_cabin_list(lists.get((jid, code))) or (None, None)
+                    s["free"] = len(cabins) if cabins is not None else None
+                    s["cabins"] = cabins
+                    s["states"] = states
+                save(DATA / "cabins" / f"{jid}.json", {"id": jid, "fetched": now.isoformat(timespec="minutes"),
+                                                      "tariff": "PREMIUM", "subcategories": subs})
+                counted += 1
+                if counted % 100 == 0:
+                    log(f"Kabinen {counted} Abfahrten – {aida.calls} Anfragen, {(time.time()-t0)/60:.0f} min")
         log(f"Freie Kabinen gezählt: {counted} Abfahrten")
         browser.close()
 
@@ -408,8 +463,9 @@ def main():
             j["cabinChoice"] = any(s.get("states") for s in c["subcategories"].values())
     save(DATA / "catalog.json", {"updated": now.isoformat(timespec="minutes"), "adults": ADULTS,
                                  "journeys": result})
-    save(DATA / "changes" / f"{today}.json",
-         build_changes(prev, {j["id"]: j for j in result}, today, partial=bool(args.limit)))
+    if not args.only_cabins:  # Änderungen nur aus vollen Läufen
+        save(DATA / "changes" / f"{today}.json",
+             build_changes(prev, {j["id"]: j for j in result}, today, partial=bool(args.limit)))
     update_history(result, today)
     save(DATA / "meta.json", {"lastRun": today, "updated": now.isoformat(timespec="minutes"),
                               "journeys": len(result), "calls": aida.calls, "errors": aida.errors,
