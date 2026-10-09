@@ -83,9 +83,11 @@ class Aida:
         return self._call("POST", API + path, body)
 
     # --- Schnittstellen -------------------------------------------------
-    def catalog_page(self, p):
-        return self.get(f"search.singleCruise.json?size=20&p={p}&pax[adults]={ADULTS}"
-                        "&sortCriteria=Date&sortDirection=Asc")
+    def catalog(self, size=3000):
+        # Pfadform wie auf aida.de (getCachableEndpointFormat); Blättern per p wird ignoriert,
+        # daher alles in einer Abfrage
+        return self.get(f"search.singleCruise.json/size={size}/sortCriteria=Price/sortDirection=Asc/"
+                        f"pax[adults]={ADULTS}/pax[juveniles]=0/pax[children]=0/pax[babies]=0.json")
 
     def detail(self, jid):
         return self.get(f"detail.cruise.json/adults={ADULTS}/juveniles=0/children=0/babies=0/"
@@ -176,7 +178,8 @@ def parse_detail(d):
                 continue
             prices = t["prices"]
             cabin = [p["cabinAmount"] for p in prices if p.get("cabinAmount")]
-            flights = [p for p in prices if p.get("flightIncluded") and p.get("amount")]
+            flights = [p for p in prices if p.get("flightIncluded") and p.get("amount")
+                       and p.get("flightDirection") == "two-way"]  # Hin- und Rückflug
             best_f = min(flights, key=lambda p: p["amount"]) if flights else None
             cat["tariffs"][label] = {
                 "cabin": min(cabin) if cabin else None,  # Kabinenpreis ohne Flug, gesamt
@@ -326,23 +329,18 @@ def main():
         aida = Aida(page, args.delay)
 
         # 1) Katalog
-        journeys, pnum, pages = {}, 1, 1
-        while pnum <= pages:
-            res = aida.catalog_page(pnum)
-            if not res:
-                break
-            pages = res.get("totalPages") or pages
-            for item in res.get("cruiseItems", []):
-                for v in item.get("cruiseItemVariant", []):
-                    j = parse_catalog_item(item, v)
-                    journeys.setdefault(j["id"], j)
-            if args.limit and len(journeys) >= args.limit:
-                break
-            pnum += 1
-        ids = list(journeys)[: args.limit or None]
-        log(f"Katalog: {len(journeys)} Abfahrten, {pnum} Seiten gelesen (gemeldet: {pages})")
-        if not args.limit and len(journeys) < 0.8 * len(prev):
-            sys.exit(f"Katalog unvollständig ({len(journeys)} statt ~{len(prev)}) – nichts überschrieben")
+        journeys = {}
+        res = aida.catalog() or {}
+        for item in res.get("cruiseItems", []):
+            for v in item.get("cruiseItemVariant", []):
+                j = parse_catalog_item(item, v)
+                journeys.setdefault(j["id"], j)
+        # nach Abreise sortieren, damit --limit die nächsten Reisen nimmt
+        ids = sorted(journeys, key=lambda k: journeys[k]["start"])[: args.limit or None]
+        total = res.get("resultsTotal") or 0
+        log(f"Katalog: {len(journeys)} Abfahrten (gemeldet: {total})")
+        if not journeys or len(journeys) < 0.95 * total or (not args.limit and len(journeys) < 0.8 * len(prev)):
+            sys.exit(f"Katalog unvollständig ({len(journeys)} von {total}, vorher {len(prev)}) – nichts überschrieben")
 
         # 2) Details + Preise je Abfahrt
         for i, jid in enumerate(ids, 1):
@@ -398,6 +396,8 @@ def main():
         if c:
             j["freeCabins"] = sum(s.get("free") or 0 for s in c["subcategories"].values())
             j["freeCountedAt"] = c["fetched"]
+            # False = buchbar, aber keine Wunschkabine mehr wählbar (Kabine wird zugeteilt)
+            j["cabinChoice"] = any(s.get("states") for s in c["subcategories"].values())
     save(DATA / "catalog.json", {"updated": now.isoformat(timespec="minutes"), "adults": ADULTS,
                                  "journeys": result})
     save(DATA / "changes" / f"{today}.json",
