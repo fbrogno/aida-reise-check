@@ -1,8 +1,168 @@
 {
+"AGSJO": {
+"lat": 17.1167,
+"lon": -61.85,
+"name": "Antigua"
+},
+"ARBUE": {
+"lat": -34.5833,
+"lon": -58.6667,
+"name": "Buenos Aires"
+},
+"ARPMY": {
+"lat": -42.75,
+"lon": -65.0333,
+"name": "Puerto Madryn"
+},
+"ARUSH": {
+"lat": -54.8,
+"lon": -68.3,
+"name": "Ushuaia"
+},
+"AUADL": {
+"lat": -34.9167,
+"lon": 138.5833,
+"name": "Adelaide"
+},
+"AUBWT": {
+"lat": -41.0524,
+"lon": 145.9064,
+"name": "Burnie"
+},
+"AUFRE": {
+"lat": -32.0534,
+"lon": 115.7586,
+"name": "Fremantle"
+},
+"AUKGI": {
+"lat": -35.8183,
+"lon": 137.1566,
+"name": "Kangaroo Island"
+},
+"AUMEL": {
+"lat": -37.8167,
+"lon": 144.9667,
+"name": "Melbourne"
+},
+"AUSYD": {
+"lat": -33.85,
+"lon": 151.2,
+"name": "Sydney"
+},
+"AWORJ": {
+"lat": null,
+"lon": null,
+"name": "Aruba"
+},
+"BBBGI": {
+"lat": 13.15,
+"lon": -59.525,
+"name": "Barbados"
+},
+"BQKRA": {
+"lat": 12.15,
+"lon": -68.2667,
+"name": "Bonaire"
+},
+"BRFOR": {
+"lat": -3.7167,
+"lon": -38.5833,
+"name": "Fortaleza"
+},
+"BRIOS": {
+"lat": -14.7833,
+"lon": -39.0333,
+"name": "Ilheus"
+},
+"BROBI": {
+"lat": -1.9,
+"lon": -55.5,
+"name": "Boca da Valeria"
+},
+"BRRIO": {
+"lat": -22.8667,
+"lon": -43.2167,
+"name": "Rio de Janeiro"
+},
+"BRSTM": {
+"lat": -2.4333,
+"lon": -54.7167,
+"name": "Santarém"
+},
+"CKARU": {
+"lat": -18.8641,
+"lon": -159.7978,
+"name": "Arutanga"
+},
+"CLIPC": {
+"lat": -27.15,
+"lon": -109.4167,
+"name": "Osterinsel"
+},
+"CLPMC": {
+"lat": -41.4667,
+"lon": -72.95,
+"name": "Puerto Montt"
+},
+"CLSAI": {
+"lat": -33.6,
+"lon": -71.6,
+"name": "San Antonio"
+},
+"CVMIN": {
+"lat": 16.8833,
+"lon": -25.0,
+"name": "Mindelo"
+},
+"CVRAI": {
+"lat": 15.1201,
+"lon": -23.6348,
+"name": "Santiago"
+},
+"CWWIL": {
+"lat": 12.1,
+"lon": -68.9167,
+"name": "Curacao"
+},
+"DEHAM": {
+"lat": 53.5167,
+"lon": 9.9333,
+"name": "Hamburg"
+},
+"DEKEL": {
+"lat": 54.3333,
+"lon": 10.1333,
+"name": "Kiel"
+},
 "DEWAR": {
 "lat": 54.1667,
 "lon": 12.0833,
 "name": "Warnemünde"
+},
+"DKAAR": {
+"lat": 56.15,
+"lon": 10.2167,
+"name": "Århus"
+},
+"DKCPH": {
+"lat": 55.6667,
+"lon": 12.5833,
+"name": "Kopenhagen"
+},
+"DKSKA": {
+"lat": 57.726,
+"lon": 10.5845,
+"name": "Skagen"
+},
+"DMRSU": {
+"lat": 15.4113,
+"lon": -61.3654,
+"name": "Dominica"
+},
+"DOLRM": {
+"lat": 18.4227,
+"lon": -68.9663,
+"name": "La Romana"
 },
 "ESAGP": {
 "lat": 36.7167,
@@ -24,6 +184,16 @@
 "lon": -0.9833,
 "name": "Cartagena (Spanien)"
 },
+"ESFUE": {
+"lat": 28.4004,
+"lon": -14.0049,
+"name": "Fuerteventura"
+},
+"ESGIJ": {
+"lat": 43.5333,
+"lon": -5.6667,
+"name": "Gijon"
+},
 "ESIBZ": {
 "lat": 38.9,
 "lon": 1.4333,
@@ -34,15 +204,65 @@
 "lon": -8.3833,
 "name": "A Coruña"
 },
+"ESLPA": {
+"lat": 28.1,
+"lon": -15.4167,
+"name": "Gran Canaria"
+},
 "ESPMI": {
 "lat": 39.5667,
 "lon": 2.6333,
 "name": "Mallorca"
 },
+"ESSCT": {
+"lat": 28.2936,
+"lon": -16.6214,
+"name": "Teneriffa"
+},
+"ESSPC": {
+"lat": 28.6833,
+"lon": -17.7667,
+"name": "La Palma"
+},
+"ESTAR": {
+"lat": 41.1172,
+"lon": 1.2546,
+"name": "Tarragona"
+},
 "ESVLC": {
 "lat": 39.4697,
 "lon": -0.3763,
 "name": "Valencia"
+},
+"FJLTK": {
+"lat": -17.6167,
+"lon": 177.45,
+"name": "Lautoka"
+},
+"FJSUV": {
+"lat": -18.1333,
+"lon": 178.45,
+"name": "Suva"
+},
+"FRAJA": {
+"lat": 41.9333,
+"lon": 8.7333,
+"name": "Ajaccio"
+},
+"FRCEQ": {
+"lat": 43.55,
+"lon": 7.0167,
+"name": "Cannes"
+},
+"FRMRS": {
+"lat": 43.3,
+"lon": 5.4,
+"name": "Marseille"
+},
+"FRYNE": {
+"lat": 43.1,
+"lon": 5.8833,
+"name": "La Seyne-sur-Mer"
 },
 "GBDVR": {
 "lat": 51.1251,
@@ -54,10 +274,20 @@
 "lon": -2.4348,
 "name": "Isle of Portland"
 },
+"GBSOU": {
+"lat": 50.9025,
+"lon": -1.4042,
+"name": "Southampton"
+},
 "GIGIB": {
 "lat": 36.1286,
 "lon": -5.3475,
 "name": "Gibraltar"
+},
+"GRARM": {
+"lat": 38.1833,
+"lon": 20.4833,
+"name": "Argostoli"
 },
 "GRCFU": {
 "lat": 39.6167,
@@ -69,15 +299,185 @@
 "lon": 24.1333,
 "name": "Souda Bucht"
 },
+"GRHER": {
+"lat": 35.3333,
+"lon": 25.1667,
+"name": "Heraklion (Kreta)"
+},
 "GRJTR": {
 "lat": 36.4167,
 "lon": 25.4333,
 "name": "Santorin"
 },
+"GRKAK": {
+"lat": 37.65,
+"lon": 21.3167,
+"name": "Katakolon"
+},
 "GRPIR": {
 "lat": 37.9333,
 "lon": 23.6167,
 "name": "Piraeus"
+},
+"GRRHO": {
+"lat": 36.1724,
+"lon": 27.9195,
+"name": "Rhodos"
+},
+"GRVOL": {
+"lat": 39.3667,
+"lon": 22.95,
+"name": "Volos"
+},
+"GRZTH": {
+"lat": 37.7833,
+"lon": 20.9,
+"name": "Zakynthos"
+},
+"ITCAG": {
+"lat": 39.2167,
+"lon": 9.1167,
+"name": "Cagliari (Sardinien)"
+},
+"ITCRV": {
+"lat": 39.0833,
+"lon": 17.1333,
+"name": "Crotone"
+},
+"ITCTA": {
+"lat": 37.5,
+"lon": 15.1,
+"name": "Catania"
+},
+"ITCVV": {
+"lat": 42.1,
+"lon": 11.8,
+"name": "Rom/Civitavecchia"
+},
+"ITLIV": {
+"lat": 43.55,
+"lon": 10.3167,
+"name": "Livorno"
+},
+"ITMSN": {
+"lat": 38.1938,
+"lon": 15.5542,
+"name": "Messina"
+},
+"ITNAP": {
+"lat": 40.8333,
+"lon": 14.25,
+"name": "Neapel"
+},
+"ITOLB": {
+"lat": 40.9167,
+"lon": 9.5167,
+"name": "Olbia"
+},
+"ITPMO": {
+"lat": 38.1167,
+"lon": 13.3667,
+"name": "Palermo"
+},
+"ITSPE": {
+"lat": 44.1167,
+"lon": 9.8333,
+"name": "La Spezia"
+},
+"KNBAS": {
+"lat": 17.2961,
+"lon": -62.7223,
+"name": "Basseterre"
+},
+"LCCAS": {
+"lat": 14.0167,
+"lon": -60.9667,
+"name": "St. Lucia"
+},
+"MQFDF": {
+"lat": 14.6,
+"lon": -61.05,
+"name": "Martinique"
+},
+"MTMLA": {
+"lat": 35.8833,
+"lon": 14.5,
+"name": "Malta"
+},
+"MUPLU": {
+"lat": -20.2759,
+"lon": 57.5704,
+"name": "Mauritius"
+},
+"MZMPM": {
+"lat": -25.9662,
+"lon": 32.5675,
+"name": "Maputo"
+},
+"NAWVB": {
+"lat": -22.9558,
+"lon": 14.5071,
+"name": "Walvis Bay"
+},
+"NCLIF": {
+"lat": -20.9667,
+"lon": 167.2333,
+"name": "Lifou"
+},
+"NCNOU": {
+"lat": -22.2667,
+"lon": 166.45,
+"name": "Nouméa"
+},
+"NOAES": {
+"lat": 62.4667,
+"lon": 6.15,
+"name": "Alesund"
+},
+"NOBGO": {
+"lat": 60.3833,
+"lon": 5.3167,
+"name": "Bergen"
+},
+"NOEDF": {
+"lat": 60.4667,
+"lon": 7.0667,
+"name": "Eidfjord"
+},
+"NOKRS": {
+"lat": 58.1333,
+"lon": 7.9833,
+"name": "Kristiansand"
+},
+"NOOSL": {
+"lat": 59.9,
+"lon": 10.7333,
+"name": "Oslo"
+},
+"NOSVG": {
+"lat": 58.9667,
+"lon": 5.75,
+"name": "Stavanger"
+},
+"PFMOZ": {
+"lat": -17.5,
+"lon": -149.7667,
+"name": "Moorea"
+},
+"PFPPT": {
+"lat": -17.5333,
+"lon": -149.5667,
+"name": "Papeete"
+},
+"PFUTU": {
+"lat": null,
+"lon": null,
+"name": "Uturoa"
+},
+"PTFNC": {
+"lat": 32.6333,
+"lon": -16.9,
+"name": "Madeira"
 },
 "PTLEI": {
 "lat": 41.1833,
@@ -89,9 +489,129 @@
 "lon": -9.1333,
 "name": "Lissabon"
 },
+"PTPDL": {
+"lat": 37.7333,
+"lon": -25.6667,
+"name": "Ponta Delgada (Azoren)"
+},
+"RELPT": {
+"lat": -20.9333,
+"lon": 55.3167,
+"name": "Le Port"
+},
+"SEGOT": {
+"lat": 57.7167,
+"lon": 11.9667,
+"name": "Göteborg"
+},
+"TOTBU": {
+"lat": -21.1333,
+"lon": -175.2,
+"name": "Nuku'alofa"
+},
+"TRAYT": {
+"lat": 36.8333,
+"lon": 30.6,
+"name": "Antalya"
+},
+"TRIST": {
+"lat": 41.0167,
+"lon": 28.9667,
+"name": "Istanbul"
+},
+"TRIZM": {
+"lat": 38.4167,
+"lon": 27.15,
+"name": "Izmir"
+},
 "TRKUS": {
 "lat": 37.85,
 "lon": 27.25,
 "name": "Kusadasi"
+},
+"TRMRM": {
+"lat": 36.85,
+"lon": 28.2667,
+"name": "Marmaris"
+},
+"UYMVD": {
+"lat": -34.9059,
+"lon": -56.1913,
+"name": "Montevideo"
+},
+"VUMYI": {
+"lat": -20.2495,
+"lon": 169.7702,
+"name": "Mystery Island"
+},
+"XXAM2": {
+"lat": null,
+"lon": null,
+"name": "Amazonas-Passage"
+},
+"XXCB2": {
+"lat": null,
+"lon": null,
+"name": "Copacabana-Passage"
+},
+"XXCG2": {
+"lat": null,
+"lon": null,
+"name": "Kap-der-Guten-Hoffnung-Passage"
+},
+"XXCH2": {
+"lat": null,
+"lon": null,
+"name": "Kap-Hoorn-Passage"
+},
+"XXDI2": {
+"lat": null,
+"lon": null,
+"name": "Ducie-Island-Passage"
+},
+"XXEQ2": {
+"lat": null,
+"lon": null,
+"name": "Äquatorüberquerung"
+},
+"XXGB2": {
+"lat": null,
+"lon": null,
+"name": "Garibaldi-Fjord- und Gletscher-Passage"
+},
+"XXGC2": {
+"lat": null,
+"lon": null,
+"name": "Allee-der-Gletscher-Passage"
+},
+"XXGL2": {
+"lat": null,
+"lon": null,
+"name": "Südpatagonische-Fjord- und Gletscher-Passage"
+},
+"XXMG2": {
+"lat": null,
+"lon": null,
+"name": "Magellanstraße-Passage"
+},
+"XXTA2": {
+"lat": null,
+"lon": null,
+"name": "Tuamotu-Archipel-Passage"
+},
+"ZACPT": {
+"lat": -33.9167,
+"lon": 18.4167,
+"name": "Kapstadt"
+},
+"ZAELS": {
+"lat": -33.0192,
+"lon": 27.8999,
+"name": "KuGompo (East London)"
+},
+"ZAPLZ": {
+"lat": -33.95,
+"lon": 25.6,
+"name": "Gqeberha (Port Elizabeth)"
 }
 }
