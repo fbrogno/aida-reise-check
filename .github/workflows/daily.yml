@@ -1,0 +1,67 @@
+name: AIDA täglicher Abruf
+on:
+  schedule:
+    # GitHub rechnet in UTC: 04:00 UTC = 06:00 Sommerzeit, 05:00 UTC = 06:00 Winterzeit
+    - cron: "0 4 * * *"
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Nur N Reisen (Test, leer = alle)"
+        required: false
+        default: ""
+
+concurrency:
+  group: aida-abruf
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  abruf:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Nur um 6 Uhr deutscher Zeit, einmal pro Tag
+        id: gate
+        run: |
+          hour=$(TZ=Europe/Berlin date +%H)
+          today=$(TZ=Europe/Berlin date +%F)
+          last=$(python3 -c "import json;print(json.load(open('data/meta.json')).get('lastRun',''))" 2>/dev/null || echo "")
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "run=true" >> $GITHUB_OUTPUT
+          elif [ "$hour" -ge 6 ] && [ "$last" != "$today" ]; then echo "run=true" >> $GITHUB_OUTPUT
+          else echo "Übersprungen (Berlin ${hour} Uhr, letzter Lauf ${last})"; echo "run=false" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.run == 'true'
+        with:
+          python-version: "3.12"
+
+      - name: Browser installieren
+        if: steps.gate.outputs.run == 'true'
+        run: pip install playwright==1.48.0 && python -m playwright install --with-deps chromium
+
+      - name: Abruf
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          args=""
+          if [ -n "${{ github.event.inputs.limit }}" ]; then args="--limit ${{ github.event.inputs.limit }}"; fi
+          xvfb-run -a python crawler/crawl.py --minutes 60 $args
+
+      - name: Hafen-Koordinaten ergänzen
+        if: steps.gate.outputs.run == 'true'
+        run: python crawler/ports.py || echo "Häfen nicht ergänzt"
+
+      - name: Daten speichern
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          git config user.name "aida-abruf"
+          git config user.email "actions@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet && echo "Keine Änderungen" && exit 0
+          git commit -qm "Daten $(TZ=Europe/Berlin date '+%F %H:%M')"
+          git pull -q --rebase && git push -q

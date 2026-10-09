@@ -1,0 +1,97 @@
+{
+"DEWAR": {
+"lat": 54.1667,
+"lon": 12.0833,
+"name": "Warnemünde"
+},
+"ESAGP": {
+"lat": 36.7167,
+"lon": -4.4167,
+"name": "Málaga"
+},
+"ESBCN": {
+"lat": 41.3826,
+"lon": 2.1771,
+"name": "Barcelona"
+},
+"ESCAD": {
+"lat": 36.5297,
+"lon": -6.2929,
+"name": "Cadiz"
+},
+"ESCAR": {
+"lat": 37.6,
+"lon": -0.9833,
+"name": "Cartagena (Spanien)"
+},
+"ESIBZ": {
+"lat": 38.9,
+"lon": 1.4333,
+"name": "Ibiza"
+},
+"ESLCG": {
+"lat": 43.3667,
+"lon": -8.3833,
+"name": "A Coruña"
+},
+"ESPMI": {
+"lat": 39.5667,
+"lon": 2.6333,
+"name": "Mallorca"
+},
+"ESVLC": {
+"lat": 39.4697,
+"lon": -0.3763,
+"name": "Valencia"
+},
+"GBDVR": {
+"lat": 51.1251,
+"lon": 1.3134,
+"name": "Dover"
+},
+"GBPTL": {
+"lat": 50.5476,
+"lon": -2.4348,
+"name": "Isle of Portland"
+},
+"GIGIB": {
+"lat": 36.1286,
+"lon": -5.3475,
+"name": "Gibraltar"
+},
+"GRCFU": {
+"lat": 39.6167,
+"lon": 19.9167,
+"name": "Korfu"
+},
+"GRGAF": {
+"lat": 35.4833,
+"lon": 24.1333,
+"name": "Souda Bucht"
+},
+"GRJTR": {
+"lat": 36.4167,
+"lon": 25.4333,
+"name": "Santorin"
+},
+"GRPIR": {
+"lat": 37.9333,
+"lon": 23.6167,
+"name": "Piraeus"
+},
+"PTLEI": {
+"lat": 41.1833,
+"lon": -8.6833,
+"name": "Porto Leixões"
+},
+"PTLIS": {
+"lat": 38.7167,
+"lon": -9.1333,
+"name": "Lissabon"
+},
+"TRKUS": {
+"lat": 37.85,
+"lon": 27.25,
+"name": "Kusadasi"
+}
+}
