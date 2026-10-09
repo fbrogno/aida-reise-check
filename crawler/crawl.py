@@ -307,6 +307,7 @@ def main():
     ap.add_argument("--limit", type=int, default=0, help="nur N Reisen (Test)")
     ap.add_argument("--minutes", type=float, default=60, help="Zeitbudget gesamt")
     ap.add_argument("--delay", type=float, default=0.8, help="Pause zwischen Anfragen (s)")
+    ap.add_argument("--detail-delay", type=float, default=0.4, help="Pause zwischen Detailabrufen (s)")
     args = ap.parse_args()
 
     t0 = time.time()
@@ -342,19 +343,26 @@ def main():
         if not journeys or len(journeys) < 0.95 * total or (not args.limit and len(journeys) < 0.8 * len(prev)):
             sys.exit(f"Katalog unvollständig ({len(journeys)} von {total}, vorher {len(prev)}) – nichts überschrieben")
 
-        # 2) Details + Preise je Abfahrt
-        for i, jid in enumerate(ids, 1):
-            d = aida.detail(jid)
+        # 2) Details + Preise je Abfahrt: fehlende und älteste zuerst, bis 75 % des Zeitbudgets.
+        #    Nicht erneuerte Reisen behalten den letzten Stand (stale) und kommen morgen zuerst.
+        detail_deadline = t0 + args.minutes * 60 * 0.75
+        order = sorted(ids, key=lambda k: (prev.get(k, {}).get("detailAt", ""), journeys[k]["start"]))
+        done = 0
+        aida.delay = args.detail_delay
+        for jid in order:
+            d = aida.detail(jid) if time.time() < detail_deadline else None
             if d:
-                journeys[jid].update(parse_detail(d))
-            elif jid in prev:  # Detail fehlgeschlagen -> letzten Stand behalten
-                for k in ("region", "itinerary", "categories", "mapImage"):
+                journeys[jid].update(parse_detail(d), detailAt=now.isoformat(timespec="minutes"))
+                done += 1
+            elif jid in prev:
+                for k in ("region", "itinerary", "categories", "mapImage", "detailAt"):
                     if k in prev[jid]:
                         journeys[jid][k] = prev[jid][k]
                 journeys[jid]["stale"] = True
-            if i % 100 == 0:
-                log(f"Details {i}/{len(ids)} – {aida.calls} Anfragen, {(time.time()-t0)/60:.0f} min")
-        log(f"Details fertig: {len(ids)} Abfahrten, {(time.time()-t0)/60:.0f} min")
+            if done and done % 100 == 0 and d:
+                log(f"Details {done}/{len(ids)} – {aida.calls} Anfragen, {(time.time()-t0)/60:.0f} min")
+        aida.delay = args.delay
+        log(f"Details erneuert: {done}/{len(ids)} Abfahrten, {(time.time()-t0)/60:.0f} min")
 
         # 3) Schiffspläne (einmalig je Schiff/Variante)
         for ship, var in sorted({(journeys[j]["ship"], journeys[j]["shipVariation"]) for j in ids}):
@@ -405,7 +413,8 @@ def main():
     update_history(result, today)
     save(DATA / "meta.json", {"lastRun": today, "updated": now.isoformat(timespec="minutes"),
                               "journeys": len(result), "calls": aida.calls, "errors": aida.errors,
-                              "minutes": round((time.time() - t0) / 60, 1), "cabinsCounted": counted})
+                              "minutes": round((time.time() - t0) / 60, 1), "detailsRefreshed": done,
+                              "cabinsCounted": counted})
     log(f"Fertig: {aida.calls} Anfragen, {aida.errors} Fehler, {(time.time()-t0)/60:.1f} min")
 
 

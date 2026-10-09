@@ -21,7 +21,7 @@ permissions:
 jobs:
   abruf:
     runs-on: ubuntu-latest
-    timeout-minutes: 80
+    timeout-minutes: 85
     steps:
       - uses: actions/checkout@v4
 

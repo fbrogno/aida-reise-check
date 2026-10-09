@@ -47,7 +47,7 @@ def main():
             if s.get("code"):
                 codes[s["code"]] = s.get("name")
     codes.pop("SEE", None)  # Seetag
-    missing = [c for c in codes if c not in ports or ports[c].get("lat") is None]
+    missing = [c for c in codes if c not in ports]  # jeder Hafen wird nur einmal gesucht
     if not missing:
         print("Häfen: alle bekannt")
         return
@@ -57,7 +57,7 @@ def main():
     for c in missing:
         row = index.get(c)
         ll = coord(row["Coordinates"]) if row else None
-        if not ll:
+        if not ll and not c.startswith("XX"):  # XX… = Panoramafahrt, kein Hafen
             ll = osm(codes[c], c[:2])
         ports[c] = {"name": codes[c], "lat": ll[0] if ll else None, "lon": ll[1] if ll else None}
     ports_file.write_text(json.dumps(ports, ensure_ascii=False, indent=0, sort_keys=True))
